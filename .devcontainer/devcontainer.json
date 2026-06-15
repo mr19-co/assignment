@@ -10,7 +10,7 @@
     "customizations": {
         "vscode": {
             "extensions":[
-                
+                "ms-vscode.cmake-tools"
             ]
         }
     },
