@@ -1,0 +1,20 @@
+{
+    "name": "assignments",
+    "dockerFile": "./Dockerfile",
+    "remoteUser": "${localEnv:USER}",
+    "build": {
+        "args": {
+            "USER": "${localEnv:USER}"
+        }
+    },
+    "customizations": {
+        "vscode": {
+            "extensions":[
+                
+            ]
+        }
+    },
+    "containerEnv": {
+        "TZ": "Europe/Rome"
+    }
+}
