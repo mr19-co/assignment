@@ -9,7 +9,7 @@ RUN groupadd --gid $USER_GID $USER \
     && useradd --uid $USER_UID --gid $USER_GID -m $USER \
     && usermod --shell /bin/bash  $USER
 
-RUN apt-get update && apt-get install -y git wget gpg software-properties-common vim
+RUN apt-get update && apt-get install -y git wget gpg software-properties-common vim cmake build-essential
 
 RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor -o /usr/share/keyrings/llvm.gpg \
     && echo "deb [signed-by=/usr/share/keyrings/llvm.gpg] http://apt.llvm.org/jammy/ llvm-toolchain-jammy-19 main" >> /etc/apt/sources.list \
