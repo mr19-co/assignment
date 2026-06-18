@@ -30,24 +30,49 @@ using namespace llvm;
 // everything in an anonymous namespace.
 namespace {
 
+  int countFunctionUses(Function* F) {
+    int res = 0;
 
-// New PM implementation
-struct TestPass: PassInfoMixin<TestPass> {
-  // Main entry point, takes IR unit to run the pass on (&F) and the
-  // corresponding pass manager (to be queried if need be)
-  PreservedAnalyses run(Function &F, FunctionAnalysisManager &) {
+    for (User* U : F->users()) {
+      if (CallBase* callInst = dyn_cast<CallBase>(U)) {
+        if (callInst->getCalledFunction() == F) {
+          res++;
+        }
+      }
+    }
 
-  	errs() << F.getName();
+    return res;
+  }
 
-  	return PreservedAnalyses::all();
-}
+  // New PM implementation
+  struct TestPass: PassInfoMixin<TestPass> {
+    // Main entry point, takes IR unit to run the pass on (&F) and the
+    // corresponding pass manager (to be queried if need be)
+    PreservedAnalyses run(Function &F, FunctionAnalysisManager &) {
+
+      errs() << "Function: " << F.getName() << "\n";
+
+      errs() << "    Number of arguments: ";
+      if (F.isVarArg()) {
+        errs() << "N+*";
+      } else {
+        errs() << F.arg_end() - F.arg_begin();
+      }
+      errs() << "\n";
+
+      errs() << "    Number calls in the same module: " << countFunctionUses(&F) << "\n";
+
+      errs() << "\n";
+
+      return PreservedAnalyses::all();
+    }
 
 
-  // Without isRequired returning true, this pass will be skipped for functions
-  // decorated with the optnone LLVM attribute. Note that clang -O0 decorates
-  // all functions with optnone.
-  static bool isRequired() { return true; }
-};
+    // Without isRequired returning true, this pass will be skipped for functions
+    // decorated with the optnone LLVM attribute. Note that clang -O0 decorates
+    // all functions with optnone.
+    static bool isRequired() { return true; }
+  };
 } // namespace
 
 //-----------------------------------------------------------------------------
