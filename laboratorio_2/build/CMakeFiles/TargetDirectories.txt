@@ -1,0 +1,9 @@
+/workspaces/assignment/laboratorio_2/build/CMakeFiles/intrinsics_gen.dir
+/workspaces/assignment/laboratorio_2/build/CMakeFiles/omp_gen.dir
+/workspaces/assignment/laboratorio_2/build/CMakeFiles/acc_gen.dir
+/workspaces/assignment/laboratorio_2/build/CMakeFiles/ARMTargetParserTableGen.dir
+/workspaces/assignment/laboratorio_2/build/CMakeFiles/AArch64TargetParserTableGen.dir
+/workspaces/assignment/laboratorio_2/build/CMakeFiles/RISCVTargetParserTableGen.dir
+/workspaces/assignment/laboratorio_2/build/CMakeFiles/LocalOpts.dir
+/workspaces/assignment/laboratorio_2/build/CMakeFiles/edit_cache.dir
+/workspaces/assignment/laboratorio_2/build/CMakeFiles/rebuild_cache.dir
