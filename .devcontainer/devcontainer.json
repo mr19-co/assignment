@@ -17,5 +17,8 @@
     },
     "containerEnv": {
         "TZ": "Europe/Rome"
-    }
+    },
+    "runArgs": [
+        "-v", "${localEnv:HOME}/.gitconfig:${localEnv:HOME}/.gitconfig"
+    ]
 }
