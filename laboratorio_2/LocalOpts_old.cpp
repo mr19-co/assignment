@@ -16,57 +16,55 @@ namespace {
   struct LocalOpts: PassInfoMixin<LocalOpts> {
     
     bool runOnBasicBlock(BasicBlock &B) {
-      LLVMContext &context = B.getContext();
-      IRBuilder<> builder(context);
+    
+      // Preleviamo le prime due istruzioni del BB
+      Instruction &Inst1st = *B.begin(), &Inst2nd = *(++B.begin());
 
-      for (BasicBlock::iterator iter = B.begin(); iter != B.end(); iter++) {
-        Instruction &inst = *iter;
-        
-        if (BinaryOperator* bin_op = dyn_cast<BinaryOperator>(&inst)) {
-          if (bin_op->getOpcode() == BinaryOperator::Mul) {
-            bool change = false;
-            Value* variable_operand = nullptr;
-            ConstantInt* constant_operand = nullptr;
-            if (constant_operand = dyn_cast<ConstantInt>(bin_op->getOperand(1))) {
-              variable_operand = bin_op->getOperand(0);
-              change = true;
-            } else {
-              if (constant_operand = dyn_cast<ConstantInt>(bin_op->getOperand(0))) {
-                variable_operand = bin_op->getOperand(1);
-                change = true;
-              }
-            }
+      // L'indirizzo della prima istruzione deve essere uguale a quello del 
+      // primo operando della seconda istruzione (per costruzione dell'esempio)
+      assert(&Inst1st == Inst2nd.getOperand(0));
 
-            int exp = 0;
-            if (change) {
-              int v = constant_operand->getValue().getSExtValue();
-              if (v > 0) {
-                int pow = 1;
-                while (pow < v) {
-                  exp++;
-                  pow *= 2;
-                }
-                if (pow != v) {
-                  change = false;
-                }
-              } else {
-                change = false;
-              }
-            }
+      // Stampa la prima istruzione
+      outs() << "PRIMA ISTRUZIONE: " << Inst1st << "\n";
+      // Stampa la prima istruzione come operando
+      outs() << "COME OPERANDO: ";
+      Inst1st.printAsOperand(outs(), false);
+      outs() << "\n";
 
-            if (change) {
-              outs() << "Changing Instruction...\n";
-              Instruction* shift_inst = dyn_cast<Instruction>(builder.CreateShl(variable_operand, exp));
-              if (shift_inst == nullptr) {
-                throw std::runtime_error("");
-              }
-              
-              shift_inst->insertAfter(&inst);
-              inst.replaceAllUsesWith(shift_inst);
-            }
-          }
+      // User-->Use-->Value
+      outs() << "I MIEI OPERANDI SONO:\n";
+      for (auto *Iter = Inst1st.op_begin(); Iter != Inst1st.op_end(); ++Iter) {
+        Value *Operand = *Iter;
+
+        if (Argument *Arg = dyn_cast<Argument>(Operand)) {
+          outs() << "\t" << *Arg << ": SONO L'ARGOMENTO N. " << Arg->getArgNo() 
+          <<" DELLA FUNZIONE " << Arg->getParent()->getName()
+                << "\n";
+        }
+        if (ConstantInt *C = dyn_cast<ConstantInt>(Operand)) {
+          outs() << "\t" << *C << ": SONO UNA COSTANTE INTERA DI VALORE " << C->getValue()
+                << "\n";
         }
       }
+
+      outs() << "LA LISTA DEI MIEI USERS:\n";
+      for (auto Iter = Inst1st.user_begin(); Iter != Inst1st.user_end(); ++Iter) {
+        outs() << "\t" << *(dyn_cast<Instruction>(*Iter)) << "\n";
+      }
+
+      outs() << "E DEI MIEI USI (CHE E' LA STESSA):\n";
+      for (auto Iter = Inst1st.use_begin(); Iter != Inst1st.use_end(); ++Iter) {
+        outs() << "\t" << *(dyn_cast<Instruction>(Iter->getUser())) << "\n";
+      }
+
+      // Manipolazione delle istruzioni
+      Instruction *NewInst = BinaryOperator::Create(
+          Instruction::Add, Inst1st.getOperand(0), Inst1st.getOperand(0));
+
+      NewInst->insertAfter(&Inst1st);
+      // Si possono aggiornare le singole references separatamente?
+      // Controlla la documentazione e prova a rispondere.
+      Inst1st.replaceAllUsesWith(NewInst);
 
       return true;
     }
