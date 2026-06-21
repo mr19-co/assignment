@@ -34,8 +34,11 @@ endif()
 # 3. ADD THE TARGET
 #===============================================================================
 add_library(AlgebraicIdentity SHARED AlgebraicIdentity.cpp)
+add_library(StrengthReduction SHARED StrengthReduction.cpp)
 
 # Allow undefined symbols in shared objects on Darwin (this is the default
 # behaviour on Linux)
 target_link_libraries(AlgebraicIdentity
+  "$<$<PLATFORM_ID:Darwin>:-undefined dynamic_lookup>")
+target_link_libraries(StrengthReduction
   "$<$<PLATFORM_ID:Darwin>:-undefined dynamic_lookup>")
