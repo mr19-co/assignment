@@ -35,22 +35,9 @@ namespace {
       return true;
     }
 
-    std::set<BasicBlock*> get_loop_exit_blocks(Loop* loop) {
-      std::set<BasicBlock*> res;
-
-      for (BasicBlock* block : loop->getBlocks()) {
-        for (BasicBlock* succ : successors(block)) {
-          if (!loop->contains(succ)) {
-            res.insert(succ);
-          }
-        }
-      }
-
-      return res;
-    }
-
     bool dominates_all_exit_blocks(DominatorTree* DT, Loop* loop, Instruction* inst) {
-      std::set<BasicBlock*> exit_blocks = get_loop_exit_blocks(loop);
+      SmallVector<BasicBlock*> exit_blocks;
+      loop->getExitBlocks(exit_blocks);
       for (BasicBlock* exit_block : exit_blocks) {
         if (!DT->dominates(inst->getParent(), exit_block)) {
           return false;
