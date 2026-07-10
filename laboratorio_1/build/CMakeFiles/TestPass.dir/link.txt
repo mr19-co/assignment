@@ -1,1 +1,0 @@
-/usr/bin/c++ -fPIC -shared -Wl,-soname,libTestPass.so -o libTestPass.so CMakeFiles/TestPass.dir/TestPass.cpp.o 
