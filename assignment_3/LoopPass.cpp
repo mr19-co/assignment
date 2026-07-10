@@ -79,15 +79,39 @@ namespace {
     }
 
     bool is_moveable(DominatorTree* DT, Loop* loop, Instruction* inst) {
+      errs() << "                Checking if instruction " << *inst << "is moveable\n";
+
+      bool inst_is_loop_invariant = is_loop_invariant(loop, inst);
+      bool inst_dominates_all_exit_blocks = dominates_all_exit_blocks(DT, loop, inst);
+      bool inst_is_dead_outside_loop = is_dead_outside_loop(loop, inst);
+      bool inst_dominates_all_its_users = dominates_all_its_users(DT, loop, inst);
+
+      errs() << "                    Loop invariant: " << (inst_is_loop_invariant ? "yes" : "no") << "\n";
+      errs() << "                    Dominates all exit blocks: " << (inst_dominates_all_exit_blocks ? "yes" : "no") << "\n";
+      errs() << "                    Dead outside loop: " << (inst_is_dead_outside_loop ? "yes" : "no") << "\n";
+      errs() << "                    Dominates all its users: " << (inst_dominates_all_its_users ? "yes" : "no") << "\n";
+
       bool res = (
-        is_loop_invariant(loop, inst) &&
-        (dominates_all_exit_blocks(DT, loop, inst) || is_dead_outside_loop(loop, inst)) &&
-        dominates_all_its_users(DT, loop, inst)
+        inst_is_loop_invariant &&
+        (inst_dominates_all_exit_blocks || inst_is_dead_outside_loop) &&
+        inst_dominates_all_its_users
       );
+
+      if (res) {
+        errs() << "                Instruction is moveable\n";
+      } else {
+        errs() << "                Instruction is not moveable\n";
+      }
+
       return res;
     }
 
     bool optimize_loop_recursive(DominatorTree* DT, LoopInfo* LI, Loop* loop) {
+      errs() << "\n";
+      errs() << "        Attempting to optimize loop with header labelled: ";
+      loop->getHeader()->printAsOperand(errs());
+      errs() << "\n";
+
       bool changed = false;
 
       for (BasicBlock* block : loop->getBlocks()) {
@@ -98,12 +122,16 @@ namespace {
           i++;
         }
         for (Instruction* inst : instructions) {
+          errs() << "\n";
+          errs() << "            Attempting to move instruction " << *inst << "\n";
           if (is_moveable(DT, loop, inst)) {
             if (!loop->getLoopPreheader()) {
+              errs() << "                Preheader not found, simplifying loop\n";
               simplifyLoop(loop, DT, LI, nullptr, nullptr, nullptr, true);
             }
             BasicBlock* preheader = loop->getLoopPreheader();
             inst->moveBefore(preheader->getTerminator());
+            errs() << "                Instruction moved\n";
             changed = true;
           }
         }
@@ -121,18 +149,27 @@ namespace {
     // Main entry point, takes IR unit to run the pass on (&F) and the
     // corresponding pass manager (to be queried if need be)
     PreservedAnalyses run(Function &F, FunctionAnalysisManager &AM) {
+      errs() << "\e[94m\n";
+
+      errs() << "Running loop-invariant code motion pass in function " << F.getName() << " ...\n";
+
       DominatorTree &DT = AM.getResult<DominatorTreeAnalysis>(F);
       LoopInfo &LI = AM.getResult<LoopAnalysis>(F);
 
       bool changed;
+      int i = 1;
       do {
+        errs() << "    Iteration " << i << "\n";
         changed = false;
         for (Loop* loop : LI) {
           if (optimize_loop_recursive(&DT, &LI, loop)) {
             changed = true;
           }
         }
+        i += 1;
       } while (changed);
+
+      errs() << "\e[0m\n";
 
       return PreservedAnalyses::none();
     }
