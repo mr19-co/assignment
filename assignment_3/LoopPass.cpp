@@ -166,7 +166,7 @@ namespace {
             changed = true;
           }
         }
-        i += 1;
+        i++;
       } while (changed);
 
       errs() << "\e[0m\n";
