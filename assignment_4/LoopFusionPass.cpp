@@ -335,7 +335,7 @@ namespace {
     PreservedAnalyses run(Function &F, FunctionAnalysisManager &AM) {
       errs() << "\e[94m\n";
 
-      errs() << "Running the loop fusion pass in function: " << F.getName() << " ...\n";
+      errs() << "Running loop fusion pass in function " << F.getName() << " ...\n";
 
       while (run_pass_iteration(F, AM)) {}
 
