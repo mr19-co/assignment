@@ -154,7 +154,7 @@ namespace {
     PreservedAnalyses run(Function &F, FunctionAnalysisManager &) {
       errs() << "\e[94m\n";
 
-      errs() << "Running multi-instruction optimization pass in function " << F.getName() << " ...\n";
+      errs() << "Running strength pass in function " << F.getName() << " ...\n";
 
       for (auto Iter = F.begin(); Iter != F.end(); ++Iter) {
         runOnBasicBlock(*Iter);
