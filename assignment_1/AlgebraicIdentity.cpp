@@ -15,7 +15,7 @@ namespace {
   // New PM implementation
   struct AlgebraicIdentity: PassInfoMixin<AlgebraicIdentity> {
     
-    bool runOnBasicBlock(BasicBlock &B) {
+    void runOnBasicBlock(BasicBlock &B) {
       LLVMContext &context = B.getContext();
       IRBuilder<> builder(context);
 
@@ -47,26 +47,13 @@ namespace {
           }
         }
       }
-
-      return true;
-    }
-
-
-    bool runOnFunction(Function &F) {
-      bool Transformed = false;
-
-      for (auto Iter = F.begin(); Iter != F.end(); ++Iter) {
-        if (runOnBasicBlock(*Iter)) {
-          Transformed = true;
-        }
-      }
-
-      return Transformed;
     }
 
     PreservedAnalyses run(Function &F, FunctionAnalysisManager &) {
-      runOnFunction(F);
-      return PreservedAnalyses::all();
+      for (auto Iter = F.begin(); Iter != F.end(); ++Iter) {
+        runOnBasicBlock(*Iter);
+      }
+      return PreservedAnalyses::none();
     }
 
     // Without isRequired returning true, this pass will be skipped for functions

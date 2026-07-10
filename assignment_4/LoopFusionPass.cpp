@@ -341,7 +341,7 @@ namespace {
 
       errs() << "\e[0m\n";
 
-      return PreservedAnalyses::all();
+      return PreservedAnalyses::none();
     }
 
 

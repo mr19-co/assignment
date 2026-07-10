@@ -56,7 +56,7 @@ namespace {
       return res;
     }
     
-    bool runOnBasicBlock(BasicBlock &B) {
+    void runOnBasicBlock(BasicBlock &B) {
       LLVMContext &context = B.getContext();
       IRBuilder<> builder(context);
 
@@ -86,26 +86,13 @@ namespace {
         new_inst->insertAfter(&inst);
         inst.replaceAllUsesWith(new_inst);
       }
-
-      return true;
-    }
-
-
-    bool runOnFunction(Function &F) {
-      bool Transformed = false;
-
-      for (auto Iter = F.begin(); Iter != F.end(); ++Iter) {
-        if (runOnBasicBlock(*Iter)) {
-          Transformed = true;
-        }
-      }
-
-      return Transformed;
     }
 
     PreservedAnalyses run(Function &F, FunctionAnalysisManager &) {
-      runOnFunction(F);
-      return PreservedAnalyses::all();
+      for (auto Iter = F.begin(); Iter != F.end(); ++Iter) {
+        runOnBasicBlock(*Iter);
+      }
+      return PreservedAnalyses::none();
     }
 
     // Without isRequired returning true, this pass will be skipped for functions

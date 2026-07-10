@@ -134,7 +134,7 @@ namespace {
         }
       } while (changed);
 
-      return PreservedAnalyses::all();
+      return PreservedAnalyses::none();
     }
 
 
