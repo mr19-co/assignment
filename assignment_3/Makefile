@@ -7,14 +7,14 @@ FILE_NO_EXT=$(basename ${FILE})
 test/${FILE_NO_EXT}.optimized.ll: test/${FILE_NO_EXT}.optimized.bc
 	llvm-dis test/${FILE_NO_EXT}.optimized.bc -o test/${FILE_NO_EXT}.optimized.ll
 
-test/${FILE_NO_EXT}.optimized.bc: build/libLoopFusionPass.so test/${FILE_NO_EXT}.m2r.ll
+test/${FILE_NO_EXT}.optimized.bc: build/libLoopPass.so test/${FILE_NO_EXT}.m2r.ll
 	opt \
-		-load-pass-plugin build/libLoopFusionPass.so \
-		-passes=loop-fusion-pass \
+		-load-pass-plugin build/libLoopPass.so \
+		-passes=loop-pass \
 		test/${FILE_NO_EXT}.m2r.ll \
 		-o test/${FILE_NO_EXT}.optimized.bc
 
-build/libLoopFusionPass.so: LoopFusionPass.cpp
+build/libLoopPass.so: LoopPass.cpp
 	mkdir -p build && \
 	cd build && \
 	export LLVM_DIR=/usr/bin && \
