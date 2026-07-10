@@ -1,13 +1,14 @@
+SHELL=/usr/bin/bash
 FILE=Example.c
 FILE_NO_EXT=$(basename ${FILE})
 
 .PHONY: test/${FILE_NO_EXT}.optimized.ll test/${FILE_NO_EXT}.optimized.bc
 
 test/${FILE_NO_EXT}.optimized.ll: test/${FILE_NO_EXT}.optimized.bc
-	llvm-dis-19 test/${FILE_NO_EXT}.optimized.bc -o test/${FILE_NO_EXT}.optimized.ll
+	llvm-dis test/${FILE_NO_EXT}.optimized.bc -o test/${FILE_NO_EXT}.optimized.ll
 
 test/${FILE_NO_EXT}.optimized.bc: build/libLoopFusionPass.so test/${FILE_NO_EXT}.m2r.ll
-	opt-19 \
+	opt \
 		-load-pass-plugin build/libLoopFusionPass.so \
 		-passes=loop-fusion-pass \
 		test/${FILE_NO_EXT}.m2r.ll \
@@ -21,7 +22,7 @@ build/libLoopFusionPass.so: LoopFusionPass.cpp
 	make
 
 test/${FILE_NO_EXT}.m2r.ll: test/${FILE_NO_EXT}.ll
-	opt-19 -p mem2reg test/${FILE_NO_EXT}.ll -So test/${FILE_NO_EXT}.m2r.ll
+	opt -p mem2reg test/${FILE_NO_EXT}.ll -So test/${FILE_NO_EXT}.m2r.ll
 
 test/${FILE_NO_EXT}.ll: test/${FILE}
-	clang-19 -S -O0 -emit-llvm -Xclang -disable-O0-optnone test/${FILE} -o test/${FILE_NO_EXT}.ll
+	clang -S -O0 -emit-llvm -Xclang -disable-O0-optnone test/${FILE} -o test/${FILE_NO_EXT}.ll

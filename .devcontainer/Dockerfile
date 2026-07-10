@@ -16,6 +16,11 @@ RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor -o /usr
     && apt-get update \
     && apt-get install -y llvm-19 llvm-19-dev llvm-19-tools clang-19
 
+RUN ln -s /usr/bin/clang-19 /usr/bin/clang
+RUN ln -s /usr/bin/clang++-19 /usr/bin/clang++
+RUN ln -s /usr/bin/opt-19 /usr/bin/opt
+RUN ln -s /usr/bin/llvm-dis-19 /usr/bin/llvm-dis
+
 # Add sudo support
 RUN apt-get update \
     && apt-get install -y sudo \
